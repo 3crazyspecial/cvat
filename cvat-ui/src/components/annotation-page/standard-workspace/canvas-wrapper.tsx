@@ -26,6 +26,7 @@ interface Props {
     canvasInstance: Canvas;
     jobInstance: any;
     activatedStateID: number | null;
+    activatedAttributeID: number | null;
     selectedStatesID: number[];
     annotations: any[];
     frameData: any;
@@ -57,7 +58,7 @@ interface Props {
     onEditShape: (enabled: boolean) => void;
     onShapeDrawn: () => void;
     onResetCanvas: () => void;
-    onUpdateAnnotations(sessionInstance: any, frame: number, states: any[]): void;
+    onUpdateAnnotations(states: any[]): void;
     onCreateAnnotations(sessionInstance: any, frame: number, states: any[]): void;
     onMergeAnnotations(sessionInstance: any, frame: number, states: any[]): void;
     onGroupAnnotations(sessionInstance: any, frame: number, states: any[]): void;
@@ -226,8 +227,6 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
 
     private onShapeEdited(event: any): void {
         const {
-            jobInstance,
-            frame,
             onEditShape,
             onUpdateAnnotations,
         } = this.props;
@@ -239,7 +238,7 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
             points,
         } = event.detail;
         state.points = points;
-        onUpdateAnnotations(jobInstance, frame, [state]);
+        onUpdateAnnotations([state]);
     }
 
     private onObjectsMerged(event: any): void {
@@ -292,12 +291,13 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     private activateOnCanvas(): void {
         const {
             activatedStateID,
+            activatedAttributeID,
             canvasInstance,
             selectedOpacity,
         } = this.props;
 
         if (activatedStateID !== null) {
-            canvasInstance.activate(activatedStateID);
+            canvasInstance.activate(activatedStateID, activatedAttributeID);
             const el = window.document.getElementById(`cvat_canvas_shape_${activatedStateID}`);
             if (el) {
                 (el as any as SVGElement).setAttribute('fill-opacity', `${selectedOpacity / 100}`);
